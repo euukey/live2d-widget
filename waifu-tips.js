@@ -53,140 +53,140 @@ function analysePointfromScore(score) {
 	}
 }
 
-async function getGPA(list) {
-	var GPA = 4.0;
-	await $.ajax('/servlet/Svlt_QueryStuScore?year=0&term=&learnType=&scoreFlag=0').done(function (data) {
-		var
-			re = /<tr null>([\s\S]*?)<\/tr>/g,
-			str,
-			dic = {'公共基础必修': 0, '公共基础选修': 1, '通识教育必修': 2, '通识教育选修': 3, '专业教育必修': 4, '专业教育选修': 5, '公共必修': 6, '公共选修': 7, '专业必修': 8, '专业选修': 9},
-			re_score = /<!-- 成绩 -->([\s\S]*?)<td>([\s\S]*?)<\/td>/,
-			re_credit = /<!-- 学分 -->([\s\S]*?)<td>([\s\S]*?)<\/td>/,
-			re_type = /<span([\s\S]*?)">([\s\S]*?)<\/span>/,
-			str_s,
-			point,
-			credit,
-			type,
-			total_point = 0.0,
-			total_credit = 0.0;
-		while (true) {
-			str = re.exec(data);
-			if (!str) {
-				break;
-			} else {
-				type = re_type.exec(str);
-				if (!type || !type[2]) {
-					continue;
-				} else if (!list[dic[type[2]]]) {
-					continue;
-				}
-				str_s = re_score.exec(str);
-				if (!str_s || !str_s[2]) {
-					continue;
-				} else {
-					point = analysePointfromScore(parseFloat(str_s[2]));
-				}
-				str_s = re_credit.exec(str);
-				if (!str_s || !str_s[2]) {
-					continue;
-				} else {
-					credit = parseFloat(str_s[2]);
-				}
-				total_point += point * credit;
-				total_credit += credit;
-			}
-		}
-		GPA = total_point / total_credit;
-    }).fail(function (xhr, status) {
-		
-    }).always(function () {
-		
-	});
-	return GPA;
-}
-
-function getConfig() {
-	$('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/saayuuk1/live2d-widget@0.9.9/styles.css">');
-	$('#top').append('<form class="iconColor">\
-		<input id="color-input-orange-0" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
-			value="#ea9836" checked="true"/>\
-		<label for="color-input-orange-0" style="position:absolute;left:600px;top:20px">公共基础必修</label>\
-		<input id="color-input-orange-1" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
-			value="#ea9836" checked="true"/>\
-		<label for="color-input-orange-1" style="position:absolute;left:600px;top:70px">公共基础选修</label>\
-		<input id="color-input-orange-2" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
-			value="#ea9836" checked="true"/>\
-		<label for="color-input-orange-2" style="position:absolute;left:720px;top:20px">通识教育必修</label>\
-		<input id="color-input-orange-3" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
-			value="#ea9836" checked="true"/>\
-		<label for="color-input-orange-3" style="position:absolute;left:720px;top:70px">通识教育选修</label>\
-		<input id="color-input-orange-4" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
-			value="#ea9836" checked="true"/>\
-		<label for="color-input-orange-4" style="position:absolute;left:840px;top:20px">专业教育必修</label>\
-		<input id="color-input-orange-5" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
-			value="#ea9836" checked="true"/>\
-		<label for="color-input-orange-5" style="position:absolute;left:840px;top:70px">专业教育选修</label>\
-		<input id="color-input-orange-6" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
-			value="#ea9836" checked="true"/>\
-		<label for="color-input-orange-6" style="position:absolute;left:960px;top:20px">公共必修</label>\
-		<input id="color-input-orange-7" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
-			value="#ea9836" checked="true"/>\
-		<label for="color-input-orange-7" style="position:absolute;left:960px;top:70px">公共选修</label>\
-		<input id="color-input-orange-8" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
-			value="#ea9836" checked="true"/>\
-		<label for="color-input-orange-8" style="position:absolute;left:1050px;top:20px">专业必修</label>\
-		<input id="color-input-orange-9" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
-			value="#ea9836" checked="true"/>\
-		<label for="color-input-orange-9" style="position:absolute;left:1050px;top:70px">专业选修</label>\
-		<input type="button" id="selectAll" value="全不选" style="position:absolute;left:1140px;top:20px;text-align:justify;"/>\
-		<input type="button" id="orange-submit" value="确认" style="padding-left:15px;position:absolute;left:1140px;top:70px;text-align:justify;"/>\
-		<style>\
-			input{\
-				font-size:12px;\
-				width:55px;\
-				height:20px;\
-				border-radius:4px;\
-				border:1px solid #c8cccf;\
-				color:#986655;\
-				outline:0;\
-				text-align:left;\
-				padding-left: 10px;\
-				display:block;\
-				cursor: pointer;\
-				box-shadow: 2px 2px 5px 1px #ccc;z-index: 1;\
-				}\
-			input::-webkit-input-placeholder{\
-				color:#986655;\
-				font-size: 12px;\
-			}\
-		</style>\
-	</form>');
-	var
-		form = $('.iconColor'),
-		orange = form.find('[name=color-input-orange]'),
-		selectall = form.find('#selectAll'),
-		submit = form.find('#orange-submit');
-	orange.click(function () {
-		if (orange.get().every(e=>e.checked)) {
-			selectall[0].value = '全不选';
-			selectall.css('width', '55px');
-		} else {
-			selectall[0].value = '全选';
-			selectall.css('width', '45px');
-		}
-	});
-	selectall.click(function () {
-		if (selectall[0].value === '全选') {
-			orange.prop('checked', true);
-			selectall[0].value = '全不选';
-			selectall.css('width', '55px');
-		} else if (selectall[0].value === '全不选') {
-			orange.prop('checked', false);
-			selectall[0].value = '全选';
-			selectall.css('width', '45px');
-		}
-	});
-}
+// async function getGPA(list) {
+// 	var GPA = 4.0;
+// 	await $.ajax('/servlet/Svlt_QueryStuScore?year=0&term=&learnType=&scoreFlag=0').done(function (data) {
+// 		var
+// 			re = /<tr null>([\s\S]*?)<\/tr>/g,
+// 			str,
+// 			dic = {'公共基础必修': 0, '公共基础选修': 1, '通识教育必修': 2, '通识教育选修': 3, '专业教育必修': 4, '专业教育选修': 5, '公共必修': 6, '公共选修': 7, '专业必修': 8, '专业选修': 9},
+// 			re_score = /<!-- 成绩 -->([\s\S]*?)<td>([\s\S]*?)<\/td>/,
+// 			re_credit = /<!-- 学分 -->([\s\S]*?)<td>([\s\S]*?)<\/td>/,
+// 			re_type = /<span([\s\S]*?)">([\s\S]*?)<\/span>/,
+// 			str_s,
+// 			point,
+// 			credit,
+// 			type,
+// 			total_point = 0.0,
+// 			total_credit = 0.0;
+// 		while (true) {
+// 			str = re.exec(data);
+// 			if (!str) {
+// 				break;
+// 			} else {
+// 				type = re_type.exec(str);
+// 				if (!type || !type[2]) {
+// 					continue;
+// 				} else if (!list[dic[type[2]]]) {
+// 					continue;
+// 				}
+// 				str_s = re_score.exec(str);
+// 				if (!str_s || !str_s[2]) {
+// 					continue;
+// 				} else {
+// 					point = analysePointfromScore(parseFloat(str_s[2]));
+// 				}
+// 				str_s = re_credit.exec(str);
+// 				if (!str_s || !str_s[2]) {
+// 					continue;
+// 				} else {
+// 					credit = parseFloat(str_s[2]);
+// 				}
+// 				total_point += point * credit;
+// 				total_credit += credit;
+// 			}
+// 		}
+// 		GPA = total_point / total_credit;
+//     }).fail(function (xhr, status) {
+//
+//     }).always(function () {
+//
+// 	});
+// 	return GPA;
+// }
+//
+// function getConfig() {
+// 	$('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/saayuuk1/live2d-widget@0.9.9/styles.css">');
+// 	$('#top').append('<form class="iconColor">\
+// 		<input id="color-input-orange-0" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
+// 			value="#ea9836" checked="true"/>\
+// 		<label for="color-input-orange-0" style="position:absolute;left:600px;top:20px">公共基础必修</label>\
+// 		<input id="color-input-orange-1" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
+// 			value="#ea9836" checked="true"/>\
+// 		<label for="color-input-orange-1" style="position:absolute;left:600px;top:70px">公共基础选修</label>\
+// 		<input id="color-input-orange-2" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
+// 			value="#ea9836" checked="true"/>\
+// 		<label for="color-input-orange-2" style="position:absolute;left:720px;top:20px">通识教育必修</label>\
+// 		<input id="color-input-orange-3" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
+// 			value="#ea9836" checked="true"/>\
+// 		<label for="color-input-orange-3" style="position:absolute;left:720px;top:70px">通识教育选修</label>\
+// 		<input id="color-input-orange-4" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
+// 			value="#ea9836" checked="true"/>\
+// 		<label for="color-input-orange-4" style="position:absolute;left:840px;top:20px">专业教育必修</label>\
+// 		<input id="color-input-orange-5" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
+// 			value="#ea9836" checked="true"/>\
+// 		<label for="color-input-orange-5" style="position:absolute;left:840px;top:70px">专业教育选修</label>\
+// 		<input id="color-input-orange-6" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
+// 			value="#ea9836" checked="true"/>\
+// 		<label for="color-input-orange-6" style="position:absolute;left:960px;top:20px">公共必修</label>\
+// 		<input id="color-input-orange-7" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
+// 			value="#ea9836" checked="true"/>\
+// 		<label for="color-input-orange-7" style="position:absolute;left:960px;top:70px">公共选修</label>\
+// 		<input id="color-input-orange-8" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
+// 			value="#ea9836" checked="true"/>\
+// 		<label for="color-input-orange-8" style="position:absolute;left:1050px;top:20px">专业必修</label>\
+// 		<input id="color-input-orange-9" class="chat-button-location-radio-input" type="checkbox" name="color-input-orange"\
+// 			value="#ea9836" checked="true"/>\
+// 		<label for="color-input-orange-9" style="position:absolute;left:1050px;top:70px">专业选修</label>\
+// 		<input type="button" id="selectAll" value="全不选" style="position:absolute;left:1140px;top:20px;text-align:justify;"/>\
+// 		<input type="button" id="orange-submit" value="确认" style="padding-left:15px;position:absolute;left:1140px;top:70px;text-align:justify;"/>\
+// 		<style>\
+// 			input{\
+// 				font-size:12px;\
+// 				width:55px;\
+// 				height:20px;\
+// 				border-radius:4px;\
+// 				border:1px solid #c8cccf;\
+// 				color:#986655;\
+// 				outline:0;\
+// 				text-align:left;\
+// 				padding-left: 10px;\
+// 				display:block;\
+// 				cursor: pointer;\
+// 				box-shadow: 2px 2px 5px 1px #ccc;z-index: 1;\
+// 				}\
+// 			input::-webkit-input-placeholder{\
+// 				color:#986655;\
+// 				font-size: 12px;\
+// 			}\
+// 		</style>\
+// 	</form>');
+// 	var
+// 		form = $('.iconColor'),
+// 		orange = form.find('[name=color-input-orange]'),
+// 		selectall = form.find('#selectAll'),
+// 		submit = form.find('#orange-submit');
+// 	orange.click(function () {
+// 		if (orange.get().every(e=>e.checked)) {
+// 			selectall[0].value = '全不选';
+// 			selectall.css('width', '55px');
+// 		} else {
+// 			selectall[0].value = '全选';
+// 			selectall.css('width', '45px');
+// 		}
+// 	});
+// 	selectall.click(function () {
+// 		if (selectall[0].value === '全选') {
+// 			orange.prop('checked', true);
+// 			selectall[0].value = '全不选';
+// 			selectall.css('width', '55px');
+// 		} else if (selectall[0].value === '全不选') {
+// 			orange.prop('checked', false);
+// 			selectall[0].value = '全选';
+// 			selectall.css('width', '45px');
+// 		}
+// 	});
+// }
 
 function beautifyIndex(url, opacity) {
 	//背景图片URL
@@ -316,7 +316,7 @@ function loadWidget(config) {
 
 	(function registerEventListener() {
 		document.querySelector("#waifu-tool .fa-comment").addEventListener("click",  () => {
-			open('https://bkxk.whu.edu.cn/xtgl/login_slogin.html');
+			open('http://www.sdwz.cn');
 		});
 		document.querySelector("#waifu-tool .fa-paper-plane").addEventListener("click", () => {
 			/*if (window.Asteroids) {
@@ -360,7 +360,7 @@ function loadWidget(config) {
 			Live2D.captureFrame = true;
 		});
 		document.querySelector("#waifu-tool .fa-info-circle").addEventListener("click", () => {
-			open("http://49.234.72.233/wordpress/?p=49");
+			open("https://cr2.top/1.html");
 		});
 		document.querySelector("#waifu-tool .fa-times").addEventListener("click", () => {
 			localStorage.setItem("waifu-display", Date.now());
@@ -399,13 +399,13 @@ function loadWidget(config) {
 		} else if (document.referrer !== "") {
 			const referrer = new URL(document.referrer),
 				domain = referrer.hostname.split(".")[1];
-			if (location.hostname === referrer.hostname) text = `欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
+			if (location.hostname === referrer.hostname) text = `欢迎访问<span>「${document.title.split(" - ")[0]}」</span>`;
 			else if (domain === "baidu") text = `Hello！来自 百度搜索 的朋友<br>你是搜索 <span>${referrer.search.split("&wd=")[1].split("&")[0]}</span> 找到的我吗？`;
 			else if (domain === "so") text = `Hello！来自 360搜索 的朋友<br>你是搜索 <span>${referrer.search.split("&q=")[1].split("&")[0]}</span> 找到的我吗？`;
 			else if (domain === "google") text = `Hello！来自 谷歌搜索 的朋友<br>欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
 			else text = `Hello！来自 <span>${referrer.hostname}</span> 的朋友`;
 		} else {
-			text = `欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
+			text = `欢迎访问<span>「${document.title.split(" - ")[0]}」</span>`;
 		}
 		showMessage(text, 7000, 8);
 	})();
